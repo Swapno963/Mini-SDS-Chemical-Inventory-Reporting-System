@@ -1,0 +1,29 @@
+services:
+  inventory-reporting-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app:/app/app
+    env_file:
+      - .env
+    depends_on:
+      - postgresss-inventory-reporting-db
+
+
+  postgresss-inventory-reporting-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_inventory_reporting_data:/var/lib/postgresql/data
+
+
+volumes:
+  postgres_inventory_reporting_data:

@@ -4,3 +4,13 @@ mini backend project using FastAPI, SQLAlchemy ORM + Alembic, and asyncpg.
 The project simulates a Safety Data Sheet (SDS) Chemical Inventory and Reporting System with
 hybrid database access. You will also demonstrate your ability to containerize the app with
 Docker, use environment variables securely, and automate migrations.
+
+
+
+How to run
+
+Make the run.sh executable
+
+sudo chmod +x run.sh
+
+now run this script.

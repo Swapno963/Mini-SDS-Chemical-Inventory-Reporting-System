@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
+import asyncpg
 
 
 
@@ -43,6 +44,10 @@ Base = declarative_base()
 
 
 
+# Asyncpg connection pool
+async def get_asyncpg_pool():
+    return await asyncpg.create_pool(dsn=DATABASE_URL)
+
 
 
 
@@ -68,3 +73,10 @@ async def get_db():
             yield session
         finally:
             await session.close()
+
+
+# Dependency for asyncpg pool
+async def get_pool():
+    pool = await get_asyncpg_pool()
+    async with pool.acquire() as conn:
+        yield conn

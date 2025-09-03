@@ -36,3 +36,12 @@ class InventoryLog(Base):
 
     # Relationship back to Chemical
     chemical = relationship("Chemical", back_populates="logs")
+
+
+
+
+class ChemicalUpdate(BaseModel):
+    name: Optional[str]
+    cas_number: Optional[str]
+    quantity: Optional[float]
+    unit: Optional[str]

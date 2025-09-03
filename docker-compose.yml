@@ -9,6 +9,8 @@ services:
       - ./app:/app/app
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
     depends_on:
       - postgresss-inventory-reporting-db
 

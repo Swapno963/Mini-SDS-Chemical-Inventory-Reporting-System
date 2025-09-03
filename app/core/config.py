@@ -3,7 +3,7 @@ from pydantic import PostgresDsn, BaseSettings
 
 class Settings(BaseSettings):
     # Api settings
-    API_PREFIX: str = "/api/v1"  
+    API_PREFIX: str = "/api/v1"
     DEBUG: bool = False
     PROJECT_NAME: str = "Chemical-Inventory-Reporting-System"
     PORT: int = 8000

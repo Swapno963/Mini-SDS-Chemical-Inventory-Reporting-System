@@ -2,8 +2,10 @@
 
 set -e
 
+
+
 echo "Starting the FastAPI application."
-sudo docker-compose up -d --build
+sudo docker-compose up --build
 
 echo "Waiting for postgres to be ready."
 

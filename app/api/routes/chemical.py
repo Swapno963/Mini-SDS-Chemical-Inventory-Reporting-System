@@ -7,32 +7,37 @@ o DELETE /chemicals/{id} → Delete a chemical (ORM)
 """
 
 from app.models.inventory import Chemical
-from fastapi import FastAPI, Depends
+from fastapi import Depends, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.db.postgresql import AsyncSessionLocal, get_asyncpg_pool
-from models import Chemical, InventoryLog, ActionType
 import asyncpg
 from app.models.inventory import ChemicalUpdate
+from app.db.postgresql import get_db, get_pool
 
-@app.post("/chemicals/")
-async def create_chemical(name: str, cas_number: str, unit: str, db: AsyncSession = Depends(get_db)):
+
+router = APIRouter(prefix="/chemicals", tags=["chemical"])
+
+
+@router.post("/")
+async def create_chemical(
+    name: str, cas_number: str, unit: str, db: AsyncSession = Depends(get_db)
+):
     new_chem = Chemical(name=name, cas_number=cas_number, quantity=0, unit=unit)
     db.add(new_chem)
     await db.commit()
     await db.refresh(new_chem)
     return {"id": new_chem.id, "name": new_chem.name}
 
+
 # --- ORM Example: List chemicals ---
-@app.get("/chemicals/")
+@router.get("/")
 async def list_chemicals(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Chemical))
     chemicals = result.scalars().all()
     return chemicals
 
 
-
-@app.get("/chemicals/{chem_id}/")
+@router.get("/{chem_id}/")
 async def get_stock(chem_id: int, conn: asyncpg.Connection = Depends(get_pool)):
     row = await conn.fetchrow("SELECT * FROM chemicals WHERE id = $1", chem_id)
     if row:
@@ -40,16 +45,12 @@ async def get_stock(chem_id: int, conn: asyncpg.Connection = Depends(get_pool)):
     return {"error": "Chemical not found"}
 
 
-
-
-
 from fastapi import HTTPException
 
-@app.put("/chemicals/{chem_id}")
+
+@router.put("/{chem_id}")
 async def update_chemical(
-    chem_id: int,
-    chem_update: ChemicalUpdate,
-    db: AsyncSession = Depends(get_db)
+    chem_id: int, chem_update: ChemicalUpdate, db: AsyncSession = Depends(get_db)
 ):
     # Fetch chemical
     chem = await db.get(Chemical, chem_id)
@@ -65,15 +66,8 @@ async def update_chemical(
     return chem
 
 
-
-
-
-
-@app.delete("/chemicals/{chem_id}")
-async def delete_chemical(
-    chem_id: int,
-    db: AsyncSession = Depends(get_db)
-):
+@router.delete("/{chem_id}")
+async def delete_chemical(chem_id: int, db: AsyncSession = Depends(get_db)):
     chem = await db.get(Chemical, chem_id)
     if not chem:
         raise HTTPException(status_code=404, detail="Chemical not found")

@@ -4,12 +4,15 @@ o GET /chemicals/{id}/logs → Read all logs for a chemical (asyncpg)
 """
 
 from app.models.inventory import Chemical
-from fastapi import FastAPI, Depends
+from fastapi import Depends, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncpg
+from app.db.postgresql import get_db, get_pool
+
+router = APIRouter(prefix="/chemicals", tags=["chemical"])
 
 
-@app.post("/chemicals/{chemi_id}/log")
+@router.post("/chemicals/{chemi_id}/log")
 async def create_chemica_log(
     name: str, cas_number: str, unit: str, db: AsyncSession = Depends(get_db)
 ):
@@ -20,9 +23,9 @@ async def create_chemica_log(
     return {"id": new_chem.id, "name": new_chem.name}
 
 
-@app.get("/chemicals/{chem_id}/logs")
+@router.get("/chemicals/{chem_id}/logs")
 async def get_stock(conn: asyncpg.Connection = Depends(get_pool)):
     row = await conn.fetchrow("SELECT * FROM inventory_logs")
     if row:
-        return [dict(r) for r in result]
+        return [dict(r) for r in row]
     return {"error": "Chemical not found"}

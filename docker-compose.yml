@@ -10,10 +10,9 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
-    depends_on:
-      - postgresss-inventory-reporting-db
-        # condition: service_healthy
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
+    # depends_on:
+    #   - postgresss-inventory-reporting-db
 
 
   postgresss-inventory-reporting-db:
@@ -29,11 +28,12 @@ services:
       - "5432:5432"
     env_file:
       - .env
-    # volumes:
-    #   - postgres_inventory_reporting_data:/var/lib/postgresql/data
+    volumes:
+      - postgres_inventory_reporting_data:/var/lib/postgresql/data
     # healthcheck:
-    #   test: ["CMD-SHELL", "pg_isready -U $${DB_USER}"]
+    #   test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
     #   interval: 5s
     #   retries: 5
-# volumes:
-#   postgres_inventory_reporting_data:
+    #   start_period: 10s
+volumes:
+  postgres_inventory_reporting_data:

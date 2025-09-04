@@ -19,8 +19,6 @@ class Chemical(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False, unique=True)
-    display_name = Column(String(255), nullable=False, unique=True)
-    display_name2 = Column(String(255), nullable=False, unique=True)
     cas_number = Column(String(50), nullable=False, unique=True)
     quantity = Column(Float, nullable=False, default=0.0)
     unit = Column(String(50), nullable=False)  # e.g., g, L, ml, kg

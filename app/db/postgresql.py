@@ -7,9 +7,6 @@ from app.core.config import settings
 import asyncpg
 
 
-
-
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -18,12 +15,11 @@ logging.basicConfig(
 logger = logging.getLogger("user-service")
 
 
-
-
 # Convert synchronous postgres URL to async
+DATABASE_URL_CGP = str(settings.DATABASE_URL)
 DATABASE_URL = str(settings.DATABASE_URL)
-if DATABASE_URL.startswith("postgresql://"):
-    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+if DATABASE_URL_CGP.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL_CGP.replace("postgresql://", "postgresql+asyncpg://", 1)
 
 # Create async engine
 engine = create_async_engine(
@@ -33,8 +29,6 @@ engine = create_async_engine(
 )
 
 
-
-
 # Create async session factory
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
@@ -42,13 +36,10 @@ AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=F
 Base = declarative_base()
 
 
-
-
 # Asyncpg connection pool
 async def get_asyncpg_pool():
-    return await asyncpg.create_pool(dsn=DATABASE_URL)
-
-
+    print("Creating asyncpg pool..., DATABASE_URL_CGP=", DATABASE_URL_CGP)
+    return await asyncpg.create_pool(dsn=DATABASE_URL_CGP)
 
 
 async def initialize_db():

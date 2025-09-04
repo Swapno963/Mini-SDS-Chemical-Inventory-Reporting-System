@@ -11,22 +11,36 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 import asyncpg
-from app.models.inventory import ChemicalUpdate
+from app.models.inventory import ChemicalUpdate, ChemicalCreate
 from app.db.postgresql import get_db, get_pool
+from datetime import datetime
 
 
 router = APIRouter(prefix="/chemicals", tags=["chemical"])
 
 
 @router.post("/")
-async def create_chemical(
-    name: str, cas_number: str, unit: str, db: AsyncSession = Depends(get_db)
-):
-    new_chem = Chemical(name=name, cas_number=cas_number, quantity=0, unit=unit)
+async def create_chemical(chemical: ChemicalCreate, db: AsyncSession = Depends(get_db)):
+    now = datetime.utcnow()
+
+    new_chem = Chemical(
+        name=chemical.name,
+        cas_number=chemical.cas_number,
+        quantity=chemical.quantity,
+        unit=chemical.unit,
+        created_at=now,
+        updated_at=now,
+    )
     db.add(new_chem)
     await db.commit()
     await db.refresh(new_chem)
-    return {"id": new_chem.id, "name": new_chem.name}
+    return {
+        "id": new_chem.id,
+        "name": new_chem.name,
+        "cas_number": new_chem.cas_number,
+        "quantity": new_chem.quantity,
+        "unit": new_chem.unit,
+    }
 
 
 # --- ORM Example: List chemicals ---
@@ -37,11 +51,18 @@ async def list_chemicals(db: AsyncSession = Depends(get_db)):
     return chemicals
 
 
-@router.get("/{chem_id}/")
+@router.get("/{chem_id}")
 async def get_stock(chem_id: int, conn: asyncpg.Connection = Depends(get_pool)):
     row = await conn.fetchrow("SELECT * FROM chemicals WHERE id = $1", chem_id)
     if row:
-        return {"quantity": row["quantity"], "unit": row["unit"]}
+        return {
+            "name": row["name"],
+            "cas_number": row["cas_number"],
+            "quantity": row["quantity"],
+            "unit": row["unit"],
+            "created_at": row["created_at"],
+            "updated_at": row["updated_at"],
+        }
     return {"error": "Chemical not found"}
 
 

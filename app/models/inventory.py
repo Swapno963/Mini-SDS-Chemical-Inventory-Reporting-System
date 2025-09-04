@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, DateTim
 from sqlalchemy.orm import relationship, declarative_base
 import enum
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from app.db.postgresql import Base
 
 
@@ -21,7 +21,7 @@ class Chemical(Base):
     name = Column(String(255), nullable=False, unique=True)
     cas_number = Column(String(50), nullable=False, unique=True)
     quantity = Column(Float, nullable=False, default=0.0)
-    unit = Column(String(50), nullable=False)  # e.g., g, L, ml, kg
+    unit = Column(String(50), nullable=False)  # g, L, kg
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
@@ -44,8 +44,28 @@ class InventoryLog(Base):
     chemical = relationship("Chemical", back_populates="logs")
 
 
+class ChemicalCreate(BaseModel):
+    name: str
+    cas_number: str
+    unit: str
+    quantity: Optional[float] = 1.0
+
+
 class ChemicalUpdate(BaseModel):
     name: Optional[str]
     cas_number: Optional[str]
     quantity: Optional[float]
     unit: Optional[str]
+
+    @validator("quantity")
+    def check_quantity(cls, value):
+        if value is not None and value < 1.0:
+            raise ValueError("Quantity must be at least 1.0")
+        return value
+
+
+class InventoryLogCreate(BaseModel):
+    chemical_id: int
+    action_type: ActionType
+    quantity: float
+    timestamp: datetime

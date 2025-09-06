@@ -11,8 +11,8 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
-    # depends_on:
-    #   - postgresss-inventory-reporting-db
+    depends_on:
+      - postgresss-inventory-reporting-db
 
 
   postgresss-inventory-reporting-db:
@@ -23,7 +23,7 @@ services:
       POSTGRES_DB: ${DB_NAME}
       DB_PORT: 5432
       DB_HOST: postgresss-inventory-reporting-db
-      DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
+      # DATABASE_URL: postgresql+asyncpg://${DB_USER}:${DB_PASSWORD}@postgresss-inventory-reporting-db:5432/${DB_NAME}
     ports:
       - "5432:5432"
     env_file:

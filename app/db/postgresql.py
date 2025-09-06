@@ -5,7 +5,8 @@ from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
 import asyncpg
-
+from app.db.db_config import DATABASE_URL
+import os
 
 # Configure logging
 logging.basicConfig(
@@ -14,10 +15,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("user-service")
 
+DATABASE_URL_CGP = str(DATABASE_URL)
 
 # Convert synchronous postgres URL to async
-DATABASE_URL_CGP = str(settings.DATABASE_URL)
-DATABASE_URL = str(settings.DATABASE_URL)
+# DATABASE_URL_CGP = str(settings.DATABASE_URL)
+# DATABASE_URL = str(settings.DATABASE_URL)
 if DATABASE_URL_CGP.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL_CGP.replace("postgresql://", "postgresql+asyncpg://", 1)
 
@@ -43,6 +45,8 @@ async def get_asyncpg_pool():
 
 
 async def initialize_db():
+    os.environ["DATABASE_URL"] = DATABASE_URL
+
     """Initialize database with required tables."""
     async with engine.begin() as conn:
         # Create tables if they don't exist

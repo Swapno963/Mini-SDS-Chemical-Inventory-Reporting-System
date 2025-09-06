@@ -4,6 +4,9 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 import asyncio
+from app.db.db_config import DATABASE_URL
+
+# os.environ["DATABASE_URL"] = DATABASE_URL
 
 # Import your models' Base
 from app.models.inventory import Base
@@ -13,7 +16,7 @@ fileConfig(config.config_file_name)
 target_metadata = Base.metadata
 
 # Get DB URL from environment variable (fallback to alembic.ini)
-DATABASE_URL = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+# DATABASE_URL = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
 
 
 # def run_migrations_online():

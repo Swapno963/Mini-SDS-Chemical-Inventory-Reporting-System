@@ -1,7 +1,12 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import os
 
 # from app.api.routes import users, auth
+from app.db.db_config import DATABASE_URL
+
+os.environ["DATABASE_URL"] = DATABASE_URL
+print("DATABASE_URL in main.py=", DATABASE_URL)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.postgresql import initialize_db, close_db_connection
 from app.api.routes import inventoryLogs, chemical
